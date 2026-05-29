@@ -1,5 +1,7 @@
 # fsglean
 
+[![DOI](https://zenodo.org/badge/1253788057.svg)](https://doi.org/10.5281/zenodo.20452279)
+
 **Tidy, BIDS-aware extraction of FreeSurfer stats files into analysis-ready tabular datasets.**
 
 FreeSurfer ships `aparcstats2table` and `asegstats2table`, but they require you to enumerate subject IDs manually, don't understand BIDS session structure, and produce flat tables that need further wrangling before they're usable in longitudinal mixed-effects models. Every lab ends up writing the same one-off parsing script. `fsglean` replaces that script with a documented, tested, reusable tool.
