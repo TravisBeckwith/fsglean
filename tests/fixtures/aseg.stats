@@ -1,0 +1,6 @@
+# Title Segmentation Statistics
+# subjectname sub-01
+# ColHeaders  Index SegId NVoxels Volume_mm3  StructName normMean normStd normMin normMax normRange
+  1  4     8195    8195.4  Left-Lateral-Ventricle  29.8   9.4   0.0  79.0  79.0
+ 17 17     4321    4321.0  Left-Hippocampus  81.4   9.2  30.0 108.0  78.0
+ 18 18     1643    1643.2  Left-Amygdala  76.5   8.7  32.0 103.0  71.0

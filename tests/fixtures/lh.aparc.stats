@@ -1,0 +1,7 @@
+# Table of FreeSurfer cortical parcellation areas and volumes
+# subjectname sub-01
+# hemi lh
+# ColHeaders StructName NumVert SurfArea GrayVol ThickAvg ThickStd MeanCurv GausCurv FoldInd CurvInd
+bankssts 1583 1088 3000 2.571 0.485 0.116 0.025 18 4.2
+caudalanteriorcingulate 744 450 1412 2.825 0.568 0.126 0.023 12 1.8
+caudalmiddlefrontal 2634 1665 4776 2.672 0.524 0.118 0.026 36 7.7
