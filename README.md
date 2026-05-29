@@ -51,7 +51,6 @@ To get from those files to a table you can actually model, you need to:
 
 ```From source:
 
-```bash
 git clone https://github.com/TravisBeckwith/fsglean
 cd fsglean
 pip install -e .
