@@ -49,14 +49,10 @@ To get from those files to a table you can actually model, you need to:
 
 ## Installation
 
-```bash
-pip install fsglean
-```
-
-Or from source:
+```From source:
 
 ```bash
-git clone https://github.com/yourusername/fsglean
+git clone https://github.com/TravisBeckwith/fsglean
 cd fsglean
 pip install -e .
 ```
