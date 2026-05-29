@@ -337,7 +337,7 @@ One practical note for infant data: cortical thickness, surface area, and subcor
 Contributions welcome. Please open an issue before submitting a pull request for new features. Bug reports with a minimal reproducible example are especially helpful.
 
 ```bash
-git clone https://github.com/yourusername/fsglean
+git clone https://github.com/TravisBeckwith/fsglean
 cd fsglean
 pip install -e ".[dev]"
 pytest tests/
