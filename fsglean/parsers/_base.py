@@ -59,3 +59,62 @@ def _parse_stats_file(path: Path) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     return df
+
+
+# Columns that identify a segmentation structure but are not analysis
+# metrics — shared by aseg.stats and wmparc.stats.
+_SEGMENTATION_ID_COLS: set[str] = {"Index", "SegId", "StructName"}
+
+
+def _parse_segmentation_stats(
+    path: Path,
+    atlas: str,
+    units: dict,
+    hemi: str = "bilateral",
+) -> pd.DataFrame:
+    """Shared parser for FreeSurfer segmentation-style stats files.
+
+    Covers both ``aseg.stats`` and ``wmparc.stats``, which share the same
+    column structure (``Index SegId NVoxels Volume_mm3 StructName normMean
+    normStd normMin normMax normRange``) and differ only in which
+    structures they enumerate and how ``units`` maps metric -> unit string.
+
+    Parameters
+    ----------
+    path : Path
+        Path to the stats file.
+    atlas : str
+        Value to record in the output ``atlas`` column (e.g. ``"aseg"``,
+        ``"wmparc"``).
+    units : dict
+        Mapping of metric name -> unit string, used to populate the
+        ``units`` column.
+    hemi : str
+        Value to record in the output ``hemi`` column. Both aseg and
+        wmparc structures are not split into separate lh/rh files —
+        laterality is encoded in the structure name instead (e.g.
+        ``Left-Hippocampus``, ``wm-lh-bankssts``) — so this defaults to
+        ``"bilateral"``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Long-format table with columns: hemi, atlas, region, metric,
+        value, units.
+    """
+    path = Path(path)
+    df = _parse_stats_file(path)
+
+    metrics = [c for c in df.columns if c not in _SEGMENTATION_ID_COLS]
+    long = df.melt(
+        id_vars=["StructName"],
+        value_vars=metrics,
+        var_name="metric",
+        value_name="value",
+    ).rename(columns={"StructName": "region"})
+
+    long["hemi"] = hemi
+    long["atlas"] = atlas
+    long["units"] = long["metric"].map(units)
+
+    return long[["hemi", "atlas", "region", "metric", "value", "units"]]

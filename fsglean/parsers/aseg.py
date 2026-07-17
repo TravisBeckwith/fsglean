@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from fsglean.parsers._base import _parse_stats_file
+from fsglean.parsers._base import _parse_segmentation_stats
 
 ASEG_UNITS: dict[str, str] = {
     "NVoxels": "voxels",
@@ -15,9 +15,6 @@ ASEG_UNITS: dict[str, str] = {
     "normMax": "unitless",
     "normRange": "unitless",
 }
-
-# Columns that identify the structure but are not analysis metrics
-_ASEG_ID_COLS: set[str] = {"Index", "SegId", "StructName"}
 
 
 def parse_aseg(path: Path) -> pd.DataFrame:
@@ -43,20 +40,4 @@ def parse_aseg(path: Path) -> pd.DataFrame:
     ValueError
         If the file is malformed.
     """
-    path = Path(path)
-
-    df = _parse_stats_file(path)
-
-    metrics = [c for c in df.columns if c not in _ASEG_ID_COLS]
-    long = df.melt(
-        id_vars=["StructName"],
-        value_vars=metrics,
-        var_name="metric",
-        value_name="value",
-    ).rename(columns={"StructName": "region"})
-
-    long["hemi"] = "bilateral"
-    long["atlas"] = "aseg"
-    long["units"] = long["metric"].map(ASEG_UNITS)
-
-    return long[["hemi", "atlas", "region", "metric", "value", "units"]]
+    return _parse_segmentation_stats(path, atlas="aseg", units=ASEG_UNITS)
