@@ -1,0 +1,6 @@
+# Title Segmentation Statistics
+# subjectname sub-01
+# ColHeaders  Index SegId NVoxels Volume_mm3  StructName normMean normStd normMin normMax normRange
+  1 3001   512    510.2  wm-lh-bankssts   110.2   5.1   90.0  130.0   40.0
+  2 4001   498    490.5  wm-rh-bankssts   109.8   5.3   88.0  128.0   40.0
+  3 3002  1203   1195.7  wm-lh-precentral 108.4   4.9   85.0  127.0   42.0

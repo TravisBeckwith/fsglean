@@ -58,7 +58,7 @@ cd fsglean
 pip install -e .
 ```
 
-**Dependencies:** Python >= 3.9, pandas >= 1.3, click >= 8.0, pybids >= 0.15
+**Dependencies:** Python >= 3.9, pandas >= 1.3, click >= 8.0
 
 ---
 
@@ -66,10 +66,14 @@ pip install -e .
 
 ```bash
 fsglean /path/to/derivatives/freesurfer/ \
-  --stats aparc aseg \
-  --metrics ThickAvg GrayVol SurfArea Volume_mm3 \
+  --stats aparc --stats aseg \
+  --metrics ThickAvg --metrics GrayVol --metrics SurfArea --metrics Volume_mm3 \
   --output ./tables/
 ```
+
+> Repeat multi-value options rather than space-separating values after one
+> flag (`--stats aparc --stats aseg`, not `--stats aparc aseg`) — this is
+> standard `click` behavior for options that can be given more than once.
 
 This produces five files in `./tables/`:
 
@@ -152,21 +156,30 @@ sub-01,ses-V2,2.489,1071,2.601,...,4089.3,...
 
 ### Data dictionary (`data_dictionary.csv`)
 
+Descriptions are generated from the metric definition plus the raw
+FreeSurfer structure code — `fsglean` doesn't ship a hand-curated anatomical
+name lookup table (e.g. translating `bankssts` to "banks of the superior
+temporal sulcus"), so it doesn't fabricate anatomical prose it can't verify:
+
 ```
 column_name,description,units,atlas,source_file,freesurfer_metric
-lh_bankssts_ThickAvg,Mean cortical thickness in the left banks of the superior temporal sulcus,mm,desikan-killiany,lh.aparc.stats,ThickAvg
-lh_bankssts_SurfArea,Surface area of the left banks of the superior temporal sulcus,mm2,desikan-killiany,lh.aparc.stats,SurfArea
-Left_Hippocampus_Volume_mm3,Volume of the left hippocampus,mm3,aseg,aseg.stats,Volume_mm3
+lh_bankssts_ThickAvg,Mean cortical thickness for left hemisphere region 'bankssts' (desikan-killiany atlas),mm,desikan-killiany,lh.aparc.stats,ThickAvg
+lh_bankssts_SurfArea,Surface area for left hemisphere region 'bankssts' (desikan-killiany atlas),mm2,desikan-killiany,lh.aparc.stats,SurfArea
+Left_Hippocampus_Volume_mm3,Volume of the structure for structure 'Left-Hippocampus' (aseg),mm3,aseg,aseg.stats,Volume_mm3
 ```
 
 ### Manifest (`manifest.csv`)
 
 ```
-sub_id,ses_id,lh_aparc_found,rh_aparc_found,aseg_found,notes
-sub-01,ses-V1,True,True,True,
-sub-01,ses-V2,True,True,False,aseg.stats missing
-sub-03,ses-V1,True,False,True,rh.aparc.stats missing
+sub_id,ses_id,lh_aparc_found,rh_aparc_found,aseg_found,notes,qc_flag_metrics,qc_flag
+sub-01,ses-V1,True,True,True,,,False
+sub-01,ses-V2,True,True,False,aseg.stats missing,,False
+sub-03,ses-V1,True,False,True,rh.aparc.stats missing,,False
 ```
+
+`qc_flag` is True when any variable for that sub-ses was more than
+`--qc-threshold` standard deviations from the cohort mean; `qc_flag_metrics`
+lists which ones.
 
 ---
 
@@ -204,31 +217,36 @@ sub-03,ses-V1,True,False,True,rh.aparc.stats missing
 ```
 Usage: fsglean [OPTIONS] DERIVATIVES_DIR
 
-  Extract FreeSurfer stats files from a BIDS derivatives directory into
-  tidy tabular datasets.
+  Extract FreeSurfer stats files from a BIDS derivatives directory into tidy
+  tabular datasets.
 
-Arguments:
-  DERIVATIVES_DIR  Path to the FreeSurfer BIDS derivatives directory.
+  DERIVATIVES_DIR is the path to the FreeSurfer BIDS derivatives directory.
 
 Options:
-  --stats TEXT          Stats files to extract. Choices: aparc, aparc.a2009s,
-                        aparc.DKTatlas, aseg, wmparc. Can be specified
-                        multiple times. Default: aparc aseg
-  --metrics TEXT        Specific metrics to include. If omitted, all metrics
-                        are included. Can be specified multiple times.
-  --subjects TEXT       Subject IDs to include (e.g. sub-01 sub-02). If
-                        omitted, all subjects are included.
-  --sessions TEXT       Session IDs to include (e.g. ses-V1 ses-V2). If
-                        omitted, all sessions are included.
-  --output PATH         Output directory. Created if it does not exist.
-                        Default: ./fsglean_output/
-  --format [long|wide|both]
-                        Output format. Default: both
-  --no-dict             Skip data dictionary generation.
-  --no-manifest         Skip manifest generation.
-  --qc-threshold FLOAT  Flag values more than N standard deviations from the
-                        cohort mean. Default: 4.0. Set to 0 to disable.
-  --help                Show this message and exit.
+  --stats [aparc|aparc.DKTatlas|aparc.a2009s|aseg|wmparc]
+                                  Stats files to extract. Repeat for multiple,
+                                  e.g. --stats aparc --stats aseg.  [default:
+                                  aparc, aseg]
+  --metrics TEXT                  Restrict to these metrics (e.g. --metrics
+                                  ThickAvg --metrics GrayVol). Default: all
+                                  metrics for the requested stats.
+  --subjects TEXT                 Restrict to these subject IDs (e.g.
+                                  --subjects sub-01 --subjects sub-02).
+                                  Default: all discovered subjects.
+  --sessions TEXT                 Restrict to these session IDs (e.g.
+                                  --sessions ses-V1). Default: all discovered
+                                  sessions.
+  --output DIRECTORY              Output directory. Created if it does not
+                                  exist.  [default: ./fsglean_output/]
+  --format [long|wide|both]       Output format.  [default: both]
+  --no-dict                       Skip data dictionary generation.
+  --no-manifest                   Skip manifest generation.
+  --qc-threshold FLOAT            Flag values more than N standard deviations
+                                  from the cohort mean. Set to 0 to disable.
+                                  [default: 4.0]
+  --no-session-fallback           Leave ses_id empty for cross-sectional
+                                  subjects instead of defaulting to ses-01.
+  --help                          Show this message and exit.
 ```
 
 ---

@@ -21,7 +21,7 @@ class StatsSession:
 
 def find_sessions(
     derivatives_dir: Path,
-    fallback_ses_id: str = "ses-01",
+    fallback_ses_id: Optional[str] = "ses-01",
 ) -> Iterator[StatsSession]:
     """Walk a FreeSurfer BIDS derivatives directory and yield StatsSession objects.
 
@@ -29,6 +29,16 @@ def find_sessions(
     - Nested:          sub-01/ses-V1/stats/
     - Flat:            sub-01_ses-V1/stats/
     - Cross-sectional: sub-01/stats/
+
+    Parameters
+    ----------
+    derivatives_dir : Path
+        Root of the FreeSurfer BIDS derivatives tree.
+    fallback_ses_id : str or None
+        Value to use for ``ses_id`` when a subject has no session level
+        (cross-sectional layout). Defaults to ``"ses-01"``. Pass ``None``
+        to leave ``ses_id`` unset (``None``) instead, corresponding to the
+        CLI's ``--no-session-fallback`` flag.
     """
     derivatives_dir = Path(derivatives_dir)
 
